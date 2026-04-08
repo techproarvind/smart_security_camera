@@ -68,8 +68,10 @@ class _SplashScreenState extends State<SplashScreen>
     });
   }
 
-  void _navigate() {
+  Future<void> _navigate() async {
     if (!mounted) return;
+    // Give Firebase auth state a moment to resolve
+    await Future.delayed(const Duration(milliseconds: 300));
     final auth = AuthController.to;
     if (auth.loggedIn) {
       if (auth.role != UserRole.none) {
