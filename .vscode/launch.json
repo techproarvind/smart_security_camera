@@ -1,0 +1,32 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Dev (local WiFi)",
+      "request": "launch",
+      "type": "dart",
+      "toolArgs": [
+        "--dart-define=SIGNAL_HOST=192.168.1.34:8080",
+        "--dart-define=SIGNAL_SECURE=false"
+      ]
+    },
+    {
+      "name": "Staging",
+      "request": "launch",
+      "type": "dart",
+      "toolArgs": [
+        "--dart-define=SIGNAL_HOST=staging-signal.yourapp.com",
+        "--dart-define=SIGNAL_SECURE=true"
+      ]
+    },
+    {
+      "name": "Production",
+      "request": "launch",
+      "type": "dart",
+      "toolArgs": [
+        "--dart-define=SIGNAL_HOST=signal.yourapp.com",
+        "--dart-define=SIGNAL_SECURE=true"
+      ]
+    }
+  ]
+}

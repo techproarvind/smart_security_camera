@@ -1,5 +1,6 @@
 const WebSocket = require('ws');
-const wss = new WebSocket.Server({ port: 8080 });
+const PORT = process.env.PORT || 8080;   // Railway/Render inject PORT automatically
+const wss = new WebSocket.Server({ port: PORT });
 const rooms = {};
 
 wss.on('connection', (ws, req) => {
@@ -41,4 +42,4 @@ wss.on('connection', (ws, req) => {
   ws.on('error', e => console.error('WS error:', e.message));
 });
 
-console.log('✅ Signaling server ready → ws://localhost:8080');
+console.log(`✅ Signaling server ready on port ${PORT}`);

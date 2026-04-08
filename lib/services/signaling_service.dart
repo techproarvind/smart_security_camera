@@ -1,15 +1,11 @@
 import 'dart:convert';
 import 'package:web_socket_channel/web_socket_channel.dart';
 import 'package:web_socket_channel/status.dart' as ws_status;
+import 'package:smart_security_camera/config/app_config.dart';
 
 typedef SignalCallback = void Function(Map<String, dynamic> data);
 
 class SignalingService {
-  // ✅ CHANGE THIS to your PC's local IP (same WiFi as phone)
-  // For emulator testing use: 10.0.2.2:8080
-  // For physical device use:  192.168.X.X:8080  ← your PC IP
-  static const String _host = '192.168.1.34:8080'; // ← CHANGE THIS
-
   WebSocketChannel? _channel;
   bool _connected = false;
   bool get connected => _connected;
@@ -23,8 +19,8 @@ class SignalingService {
   void Function(String)? onError;
 
   void connect(String cameraId, String role) {
-    final uri = Uri.parse('ws://$_host?room=$cameraId&role=$role');
-    print('[Signaling] Connecting to $uri');
+    final uri = Uri.parse('${AppConfig.signalingUrl}?room=$cameraId&role=$role');
+    print('[Signaling] Connecting to $uri (env: ${AppConfig.env})');
 
     try {
       _channel = WebSocketChannel.connect(uri);
