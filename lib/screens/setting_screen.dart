@@ -26,12 +26,19 @@ class SettingsScreen extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(width: 16),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(auth.userName, style: const TextStyle(color: AppTheme.textPri, fontSize: 16, fontWeight: FontWeight.w600)),
-                    const Text('Premium Plan', style: TextStyle(color: AppTheme.primary, fontSize: 12)),
-                  ],
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        auth.userName,
+                        overflow: TextOverflow.ellipsis,
+                        maxLines: 1,
+                        style: const TextStyle(color: AppTheme.textPri, fontSize: 16, fontWeight: FontWeight.w600),
+                      ),
+                      const Text('Premium Plan', style: TextStyle(color: AppTheme.primary, fontSize: 12)),
+                    ],
+                  ),
                 ),
               ],
             ),

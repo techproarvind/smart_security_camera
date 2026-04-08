@@ -183,7 +183,15 @@ class AnalyticsTab extends StatelessWidget {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text(cam.name, style: const TextStyle(color: AppTheme.textPri, fontSize: 14, fontWeight: FontWeight.w600)),
+                      Expanded(
+                        child: Text(
+                          cam.name,
+                          overflow: TextOverflow.ellipsis,
+                          maxLines: 1,
+                          style: const TextStyle(color: AppTheme.textPri, fontSize: 14, fontWeight: FontWeight.w600),
+                        ),
+                      ),
+                      const SizedBox(width: 8),
                       Text('${cam.peopleCount} people', style: const TextStyle(color: AppTheme.info, fontSize: 13, fontWeight: FontWeight.w600)),
                     ],
                   ),

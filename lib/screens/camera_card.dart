@@ -76,7 +76,15 @@ class CameraCard extends StatelessWidget {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text(camera.name, style: const TextStyle(color: AppTheme.textPri, fontSize: 14, fontWeight: FontWeight.w600)),
+                      Expanded(
+                        child: Text(
+                          camera.name,
+                          overflow: TextOverflow.ellipsis,
+                          maxLines: 1,
+                          style: const TextStyle(color: AppTheme.textPri, fontSize: 14, fontWeight: FontWeight.w600),
+                        ),
+                      ),
+                      const SizedBox(width: 8),
                       StatusDot(camera.status),
                     ],
                   ),
@@ -132,7 +140,14 @@ class _ActionChip extends StatelessWidget {
         children: [
           Icon(icon, size: 12, color: active ? AppTheme.primary : AppTheme.textSec),
           const SizedBox(width: 4),
-          Text(label, style: TextStyle(fontSize: 11, color: active ? AppTheme.primary : AppTheme.textSec, fontWeight: FontWeight.w500)),
+          Flexible(
+            child: Text(
+              label,
+              overflow: TextOverflow.ellipsis,
+              maxLines: 1,
+              style: TextStyle(fontSize: 11, color: active ? AppTheme.primary : AppTheme.textSec, fontWeight: FontWeight.w500),
+            ),
+          ),
         ],
       ),
     ),

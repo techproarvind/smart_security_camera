@@ -196,11 +196,17 @@ class WebRTCService {
     };
   }
 
+  // ── Broadcaster controls ──────────────────────────────────
   void toggleMute(bool mute) =>
       _localStream?.getAudioTracks().forEach((t) => t.enabled = !mute);
 
   void toggleVideo(bool off) =>
       _localStream?.getVideoTracks().forEach((t) => t.enabled = !off);
+
+  // ── Viewer controls ───────────────────────────────────────
+  /// Mute / unmute the incoming audio on the viewer side.
+  void toggleRemoteAudio(bool mute) =>
+      _remoteStream?.getAudioTracks().forEach((t) => t.enabled = !mute);
 
   Future<void> switchCamera() async {
     final t = _localStream?.getVideoTracks().firstOrNull;

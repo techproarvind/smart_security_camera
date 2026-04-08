@@ -11,6 +11,8 @@ class LiveViewScreen extends StatefulWidget {
 class _LiveViewScreenState extends State<LiveViewScreen> {
   late WebRTCService _webrtc;
   bool _connected = false;
+  bool _audioMuted = false;
+  bool _mirrored   = false;
   String _status = 'Starting…';
   RTCIceConnectionState _iceState = RTCIceConnectionState.RTCIceConnectionStateNew;
 
@@ -119,12 +121,16 @@ class _LiveViewScreenState extends State<LiveViewScreen> {
               margin: const EdgeInsets.only(right: 6),
               decoration: BoxDecoration(shape: BoxShape.circle, color: _connected ? red : Colors.grey),
             ),
-            Text(
-              _connected ? 'LIVE' : _status,
-              style: TextStyle(
-                fontSize: 14,
-                color: _connected ? Colors.white : Colors.grey,
-                fontWeight: _connected ? FontWeight.w700 : FontWeight.w400,
+            Flexible(
+              child: Text(
+                _connected ? 'LIVE' : _status,
+                overflow: TextOverflow.ellipsis,
+                maxLines: 1,
+                style: TextStyle(
+                  fontSize: 14,
+                  color: _connected ? Colors.white : Colors.grey,
+                  fontWeight: _connected ? FontWeight.w700 : FontWeight.w400,
+                ),
               ),
             ),
           ],
@@ -137,7 +143,11 @@ class _LiveViewScreenState extends State<LiveViewScreen> {
               child: Stack(
                 children: [
                   // ── Remote video output ───────────────────────
-                  RTCVideoView(_webrtc.remoteRenderer, objectFit: RTCVideoViewObjectFit.RTCVideoViewObjectFitContain),
+                  RTCVideoView(
+                    _webrtc.remoteRenderer,
+                    mirror: _mirrored,
+                    objectFit: RTCVideoViewObjectFit.RTCVideoViewObjectFitContain,
+                  ),
                   // ── Waiting overlay ───────────────────────────
                   if (!_connected)
                     Container(
@@ -202,9 +212,29 @@ class _LiveViewScreenState extends State<LiveViewScreen> {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
-                  Btn(icon: Icons.camera_alt_outlined, label: 'Snapshot', onTap: () {}),
-                  Btn(icon: Icons.fiber_manual_record, label: 'Record', color: red, onTap: () {}),
-                  Btn(icon: Icons.refresh, label: 'Reconnect', onTap: _reconnect),
+                  // Audio mute / unmute
+                  Btn(
+                    icon: _audioMuted ? Icons.volume_off : Icons.volume_up,
+                    label: _audioMuted ? 'Unmute' : 'Audio',
+                    color: _audioMuted ? red : null,
+                    onTap: () {
+                      setState(() => _audioMuted = !_audioMuted);
+                      _webrtc.toggleRemoteAudio(_audioMuted);
+                    },
+                  ),
+                  // Mirror / flip video
+                  Btn(
+                    icon: Icons.flip,
+                    label: _mirrored ? 'Flip On' : 'Flip Off',
+                    color: _mirrored ? green : null,
+                    onTap: () => setState(() => _mirrored = !_mirrored),
+                  ),
+                  // Reconnect
+                  Btn(
+                    icon: Icons.refresh,
+                    label: 'Reconnect',
+                    onTap: _reconnect,
+                  ),
                 ],
               ),
             ),

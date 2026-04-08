@@ -28,7 +28,14 @@ class StatusDot extends StatelessWidget {
     children: [
       Container(width: 8, height: 8, decoration: BoxDecoration(color: _color, shape: BoxShape.circle)),
       const SizedBox(width: 5),
-      Text(_label, style: TextStyle(color: _color, fontSize: 12, fontWeight: FontWeight.w600)),
+      Flexible(
+        child: Text(
+          _label,
+          overflow: TextOverflow.ellipsis,
+          maxLines: 1,
+          style: TextStyle(color: _color, fontSize: 12, fontWeight: FontWeight.w600),
+        ),
+      ),
     ],
   );
 }
