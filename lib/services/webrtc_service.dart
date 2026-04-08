@@ -208,14 +208,30 @@ class WebRTCService {
   }
 
   Future<void> dispose() async {
-    signaling.disconnect();
-    _localStream?.getTracks().forEach((t) => t.stop());
-    await _localStream?.dispose();
-    await _pc?.close();
-    _pc = null;
-    localRenderer.srcObject  = null;
-    remoteRenderer.srcObject = null;
-    _initialized = false;
-    print('[WebRTC] Disposed');
+  signaling.disconnect();
+
+  _localStream?.getTracks().forEach((t) => t.stop());
+  await _localStream?.dispose();
+  _localStream = null;
+
+  await _pc?.close();
+  _pc = null;
+
+  // ✅ Only clear srcObject if renderers are still initialized
+  if (_initialized) {
+    try {
+      localRenderer.srcObject  = null;
+      remoteRenderer.srcObject = null;
+    } catch (e) {
+      print('[WebRTC] srcObject clear skipped: $e');
+    }
   }
+
+  // ✅ Dispose renderers last
+  await localRenderer.dispose();
+  await remoteRenderer.dispose();
+
+  _initialized = false;
+  print('[WebRTC] Disposed');
+}
 }

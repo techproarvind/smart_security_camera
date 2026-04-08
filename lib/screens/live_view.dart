@@ -9,25 +9,25 @@ class LiveViewScreen extends StatefulWidget {
 }
 
 class _LiveViewScreenState extends State<LiveViewScreen> {
-  final WebRTCService _webrtc = WebRTCService();
+  late WebRTCService _webrtc;
+  bool _connected = false;
+  String _status = 'Starting…';
+  RTCIceConnectionState _iceState = RTCIceConnectionState.RTCIceConnectionStateNew;
 
-  bool   _muted      = false;
-  bool   _fullscreen = false;
-  bool   _connected  = false;
-  String _status     = 'Starting…';
-  RTCIceConnectionState _iceState =
-      RTCIceConnectionState.RTCIceConnectionStateNew;
+  String get _camId => ModalRoute.of(context)?.settings.arguments as String? ?? 'cam_001';
 
-  String get _camId =>
-      ModalRoute.of(context)?.settings.arguments as String? ?? 'cam_001';
+  // Read cameraId from route arguments
 
   @override
   void initState() {
     super.initState();
+    _webrtc = WebRTCService(); // ✅ create here
+
     _start();
   }
 
   Future<void> _start() async {
+    print('>>> LiveViewScreen: starting as VIEWER for room $_camId');
     await _webrtc.initialize();
 
     _webrtc.onStatusChanged = (msg) {
@@ -35,7 +35,12 @@ class _LiveViewScreenState extends State<LiveViewScreen> {
     };
 
     _webrtc.onRemoteStream = (_) {
-      if (mounted) setState(() { _connected = true; _status = 'Live'; });
+      if (mounted) {
+        setState(() {
+          _connected = true;
+          _status = 'Live';
+        });
+      }
     };
 
     _webrtc.onConnectionStateChange = (s) {
@@ -45,173 +50,187 @@ class _LiveViewScreenState extends State<LiveViewScreen> {
         switch (s) {
           case RTCIceConnectionState.RTCIceConnectionStateConnected:
           case RTCIceConnectionState.RTCIceConnectionStateCompleted:
-            _connected = true; _status = 'Live'; break;
+            _connected = true;
+            _status = 'Live';
+            break;
           case RTCIceConnectionState.RTCIceConnectionStateDisconnected:
-            _connected = false; _status = 'Reconnecting…'; break;
+            _connected = false;
+            _status = 'Reconnecting…';
+            break;
           case RTCIceConnectionState.RTCIceConnectionStateFailed:
-            _connected = false; _status = '❌ Connection failed — tap Reconnect'; break;
-          default: break;
+            _connected = false;
+            _status = '❌ Failed — tap Reconnect';
+            break;
+          default:
+            break;
         }
       });
     };
 
     _webrtc.onError = (e) {
-      if (mounted) setState(() { _status = '❌ $e'; });
+      if (mounted) setState(() => _status = '❌ $e');
     };
 
     await _webrtc.startViewing(cameraId: _camId);
   }
 
   Future<void> _reconnect() async {
-    setState(() { _connected = false; _status = 'Reconnecting…'; });
-    await _webrtc.dispose();
+    setState(() {
+      _connected = false;
+      _status = 'Reconnecting…';
+    });
+
+    // ✅ Safely dispose old service
+    try {
+      await _webrtc.dispose();
+    } catch (e) {
+      print('[Reconnect] dispose error (ignored): $e');
+    }
+
+    // ✅ Create a FRESH WebRTCService — do not reuse old one
+    _webrtc = WebRTCService();
+
+    // ✅ Start fresh
     await _start();
   }
 
   @override
-  void dispose() { _webrtc.dispose(); super.dispose(); }
+  void dispose() {
+    _webrtc.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
-    const green  = Color(0xFF00E5A0);
-    const red    = Color(0xFFFF4D4D);
-    const surf   = Color(0xFF161B22);
+    const green = Color(0xFF00E5A0);
+    const red = Color(0xFFFF4D4D);
+    const surf = Color(0xFF161B22);
 
     return Scaffold(
       backgroundColor: Colors.black,
-      appBar: _fullscreen ? null : AppBar(
+      appBar: AppBar(
         backgroundColor: Colors.black,
-        title: Row(mainAxisSize: MainAxisSize.min, children: [
-          AnimatedContainer(
-            duration: const Duration(milliseconds: 400),
-            width: 8, height: 8,
-            margin: const EdgeInsets.only(right: 6),
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              color: _connected ? red : Colors.grey,
+        title: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              width: 8,
+              height: 8,
+              margin: const EdgeInsets.only(right: 6),
+              decoration: BoxDecoration(shape: BoxShape.circle, color: _connected ? red : Colors.grey),
             ),
-          ),
-          Text(
-            _connected ? 'LIVE' : _status,
-            style: TextStyle(
-              fontSize: 14,
-              color: _connected ? Colors.white : Colors.grey,
-              fontWeight: _connected ? FontWeight.w700 : FontWeight.w400,
+            Text(
+              _connected ? 'LIVE' : _status,
+              style: TextStyle(
+                fontSize: 14,
+                color: _connected ? Colors.white : Colors.grey,
+                fontWeight: _connected ? FontWeight.w700 : FontWeight.w400,
+              ),
             ),
-          ),
-        ]),
-        actions: [
-          IconButton(
-            icon: Icon(_muted ? Icons.volume_off : Icons.volume_up),
-            onPressed: () { setState(() => _muted = !_muted); _webrtc.toggleMute(_muted); },
-          ),
-          IconButton(
-            icon: const Icon(Icons.fullscreen),
-            onPressed: () => setState(() => _fullscreen = !_fullscreen),
-          ),
-        ],
+          ],
+        ),
       ),
-      body: SafeArea(child: Column(children: [
-        Expanded(
-          child: GestureDetector(
-            onTap: () => setState(() => _fullscreen = !_fullscreen),
-            child: Stack(children: [
-              // ── Video output ──────────────────────────────
-              RTCVideoView(
-                _webrtc.remoteRenderer,
-                objectFit: RTCVideoViewObjectFit.RTCVideoViewObjectFitContain,
-              ),
-              // ── Status overlay (shown while not connected) ─
-              if (!_connected)
-                Container(
-                  color: Colors.black87,
-                  child: Center(
-                    child: Column(mainAxisSize: MainAxisSize.min, children: [
-                      const SizedBox(
-                        width: 36, height: 36,
-                        child: CircularProgressIndicator(
-                          color: green, strokeWidth: 2,
+      body: SafeArea(
+        child: Column(
+          children: [
+            Expanded(
+              child: Stack(
+                children: [
+                  // ── Remote video output ───────────────────────
+                  RTCVideoView(_webrtc.remoteRenderer, objectFit: RTCVideoViewObjectFit.RTCVideoViewObjectFitContain),
+                  // ── Waiting overlay ───────────────────────────
+                  if (!_connected)
+                    Container(
+                      color: Colors.black87,
+                      child: Center(
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            const CircularProgressIndicator(color: green, strokeWidth: 2),
+                            const SizedBox(height: 16),
+                            Padding(
+                              padding: const EdgeInsets.symmetric(horizontal: 32),
+                              child: Text(
+                                _status,
+                                textAlign: TextAlign.center,
+                                style: const TextStyle(color: Colors.white70, fontSize: 14),
+                              ),
+                            ),
+                            const SizedBox(height: 20),
+                            TextButton.icon(
+                              onPressed: _reconnect,
+                              icon: const Icon(Icons.refresh, color: green),
+                              label: const Text('Reconnect', style: TextStyle(color: green)),
+                            ),
+                          ],
                         ),
                       ),
-                      const SizedBox(height: 16),
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 32),
-                        child: Text(
-                          _status,
-                          textAlign: TextAlign.center,
-                          style: const TextStyle(color: Colors.white70, fontSize: 14),
-                        ),
-                      ),
-                      const SizedBox(height: 20),
-                      TextButton.icon(
-                        onPressed: _reconnect,
-                        icon: const Icon(Icons.refresh, color: green),
-                        label: const Text('Reconnect', style: TextStyle(color: green)),
-                      ),
-                    ]),
-                  ),
-                ),
-              // ── LIVE badge ────────────────────────────────
-              if (_connected)
-                Positioned(
-                  top: 12, left: 12,
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                    decoration: BoxDecoration(
-                      color: red, borderRadius: BorderRadius.circular(6),
                     ),
-                    child: const Text('● LIVE',
-                        style: TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.w700)),
+                  // ── LIVE badge ────────────────────────────────
+                  if (_connected)
+                    Positioned(
+                      top: 12,
+                      left: 12,
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                        decoration: BoxDecoration(color: red, borderRadius: BorderRadius.circular(6)),
+                        child: const Text(
+                          '● LIVE',
+                          style: TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.w700),
+                        ),
+                      ),
+                    ),
+                  // ── ICE state debug ───────────────────────────
+                  Positioned(
+                    bottom: 8,
+                    right: 8,
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                      decoration: BoxDecoration(color: Colors.black45, borderRadius: BorderRadius.circular(6)),
+                      child: Text(
+                        _iceState.toString().replaceAll('RTCIceConnectionState.RTCIceConnectionState', ''),
+                        style: const TextStyle(color: Colors.white38, fontSize: 10),
+                      ),
+                    ),
                   ),
-                ),
-              // ── ICE debug label ───────────────────────────
-              Positioned(
-                bottom: 8, right: 8,
-                child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                  decoration: BoxDecoration(
-                    color: Colors.black45,
-                    borderRadius: BorderRadius.circular(6),
-                  ),
-                  child: Text(
-                    _iceState.toString().replaceAll('RTCIceConnectionState.RTCIceConnectionState', ''),
-                    style: const TextStyle(color: Colors.white38, fontSize: 10),
-                  ),
-                ),
+                ],
               ),
-            ]),
-          ),
-        ),
-        // ── Bottom controls ───────────────────────────────
-        Container(
-          color: surf,
-          padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 20),
-          child: Row(mainAxisAlignment: MainAxisAlignment.spaceEvenly, children: [
-            Btn(icon: Icons.camera_alt_outlined, label: 'Snapshot', onTap: () {}),
-            Btn(icon: Icons.fiber_manual_record,  label: 'Record',   color: red, onTap: () {}),
-            Btn(
-              icon: _muted ? Icons.mic_off : Icons.mic,
-              label: _muted ? 'Unmute' : 'Mute',
-              onTap: () { setState(() => _muted = !_muted); _webrtc.toggleMute(_muted); },
             ),
-            Btn(icon: Icons.refresh, label: 'Reconnect', onTap: _reconnect),
-          ]),
+            Container(
+              color: surf,
+              padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 20),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  Btn(icon: Icons.camera_alt_outlined, label: 'Snapshot', onTap: () {}),
+                  Btn(icon: Icons.fiber_manual_record, label: 'Record', color: red, onTap: () {}),
+                  Btn(icon: Icons.refresh, label: 'Reconnect', onTap: _reconnect),
+                ],
+              ),
+            ),
+          ],
         ),
-      ])),
+      ),
     );
   }
 }
 
 class Btn extends StatelessWidget {
-  final IconData icon; final String label; final Color? color; final VoidCallback? onTap;
-  const Btn({required this.icon, required this.label, this.color, this.onTap});
+  final IconData icon;
+  final String label;
+  final Color? color;
+  final VoidCallback? onTap;
+  const Btn({super.key, required this.icon, required this.label, this.color, this.onTap});
   @override
   Widget build(BuildContext context) => GestureDetector(
     onTap: onTap,
-    child: Column(mainAxisSize: MainAxisSize.min, children: [
-      Icon(icon, color: color ?? Colors.white, size: 24),
-      const SizedBox(height: 4),
-      Text(label, style: TextStyle(color: color ?? Colors.white54, fontSize: 11)),
-    ]),
+    child: Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Icon(icon, color: color ?? Colors.white, size: 24),
+        const SizedBox(height: 4),
+        Text(label, style: TextStyle(color: color ?? Colors.white54, fontSize: 11)),
+      ],
+    ),
   );
 }
