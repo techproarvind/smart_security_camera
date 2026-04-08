@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import 'package:smart_security_camera/provider/auth_provider.dart';
+import 'package:get/get.dart';
+import 'package:smart_security_camera/controllers/auth_controller.dart';
 import 'package:smart_security_camera/screens/app_theme.dart';
 import 'package:smart_security_camera/sharedWidget/shared_widged.dart';
 
@@ -11,23 +11,26 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
-  final _email = TextEditingController();
-  final _pass  = TextEditingController();
-  bool _loading = false;
-  bool _obscure = true;
-  String? _error;
+  final _email   = TextEditingController();
+  final _pass    = TextEditingController();
+  final _loading = false.obs;
+  final _error   = RxnString();
+  bool _obscure  = true;
 
   Future<void> _login() async {
-    setState(() { _loading = true; _error = null; });
-    final ok = await context.read<AuthProvider>().login(_email.text.trim(), _pass.text);
-    if (!mounted) return;
-    setState(() => _loading = false);
+    _loading.value = true;
+    _error.value   = null;
+    final ok = await AuthController.to.login(_email.text.trim(), _pass.text);
+    _loading.value = false;
     if (ok) {
-      Navigator.pushReplacementNamed(context, '/role');
+      Get.offAllNamed('/role');
     } else {
-      setState(() => _error = 'Invalid email or password.');
+      _error.value = 'Invalid email or password.';
     }
   }
+
+  @override
+  void dispose() { _email.dispose(); _pass.dispose(); super.dispose(); }
 
   @override
   Widget build(BuildContext context) => Scaffold(
@@ -56,30 +59,34 @@ class _LoginScreenState extends State<LoginScreen> {
               ),
             ),
             const SizedBox(height: 16),
-            TextField(
-              controller: _pass,
-              obscureText: _obscure,
-              style: const TextStyle(color: AppTheme.textPri),
-              decoration: InputDecoration(
-                labelText: 'Password',
-                prefixIcon: const Icon(Icons.lock_outline, color: AppTheme.textSec, size: 20),
-                suffixIcon: IconButton(
-                  icon: Icon(_obscure ? Icons.visibility_off : Icons.visibility, color: AppTheme.textSec, size: 20),
-                  onPressed: () => setState(() => _obscure = !_obscure),
+            StatefulBuilder(
+              builder: (_, set) => TextField(
+                controller: _pass,
+                obscureText: _obscure,
+                style: const TextStyle(color: AppTheme.textPri),
+                decoration: InputDecoration(
+                  labelText: 'Password',
+                  prefixIcon: const Icon(Icons.lock_outline, color: AppTheme.textSec, size: 20),
+                  suffixIcon: IconButton(
+                    icon: Icon(_obscure ? Icons.visibility_off : Icons.visibility, color: AppTheme.textSec, size: 20),
+                    onPressed: () => set(() => _obscure = !_obscure),
+                  ),
                 ),
               ),
             ),
-            if (_error != null) ...[
-              const SizedBox(height: 12),
-              Text(_error!, style: const TextStyle(color: AppTheme.danger, fontSize: 13), textAlign: TextAlign.center),
-            ],
+            Obx(() => _error.value != null
+                ? Padding(
+                    padding: const EdgeInsets.only(top: 12),
+                    child: Text(_error.value!, style: const TextStyle(color: AppTheme.danger, fontSize: 13), textAlign: TextAlign.center),
+                  )
+                : const SizedBox.shrink()),
             const SizedBox(height: 28),
-            ElevatedButton(
-              onPressed: _loading ? null : _login,
-              child: _loading
+            Obx(() => ElevatedButton(
+              onPressed: _loading.value ? null : _login,
+              child: _loading.value
                   ? const SizedBox(height: 20, width: 20, child: CircularProgressIndicator(strokeWidth: 2, color: AppTheme.bg))
                   : const Text('Sign In'),
-            ),
+            )),
             const SizedBox(height: 16),
             TextButton(
               onPressed: () {},
@@ -88,10 +95,10 @@ class _LoginScreenState extends State<LoginScreen> {
             const SizedBox(height: 40),
             GlassCard(
               child: Column(
-                children: [
-                  const Text('Demo credentials', style: TextStyle(color: AppTheme.textSec, fontSize: 12)),
-                  const SizedBox(height: 4),
-                  const Text('admin@smartcam.app  /  1234', style: TextStyle(color: AppTheme.textPri, fontSize: 13, fontWeight: FontWeight.w500)),
+                children: const [
+                  Text('Demo credentials', style: TextStyle(color: AppTheme.textSec, fontSize: 12)),
+                  SizedBox(height: 4),
+                  Text('admin@smartcam.app  /  1234', style: TextStyle(color: AppTheme.textPri, fontSize: 13, fontWeight: FontWeight.w500)),
                 ],
               ),
             ),

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import 'package:smart_security_camera/provider/auth_provider.dart';
+import 'package:get/get.dart';
+import 'package:smart_security_camera/controllers/auth_controller.dart';
 import 'package:smart_security_camera/screens/app_theme.dart';
 
 class RoleSelectScreen extends StatelessWidget {
@@ -28,41 +28,33 @@ class RoleSelectScreen extends StatelessWidget {
                 ),
                 child: const Icon(Icons.videocam, color: AppTheme.primary, size: 36),
               ),
-              const Text(
-                'SmartCam',
-                textAlign: TextAlign.center,
-                style: TextStyle(color: AppTheme.textPri, fontSize: 28, fontWeight: FontWeight.w700),
-              ),
+              const Text('SmartCam', textAlign: TextAlign.center,
+                  style: TextStyle(color: AppTheme.textPri, fontSize: 28, fontWeight: FontWeight.w700)),
               const SizedBox(height: 8),
-              const Text(
-                'Select this device\'s role',
-                textAlign: TextAlign.center,
-                style: TextStyle(color: AppTheme.textSec, fontSize: 14),
-              ),
+              const Text("Select this device's role", textAlign: TextAlign.center,
+                  style: TextStyle(color: AppTheme.textSec, fontSize: 14)),
               const SizedBox(height: 52),
 
-              // Camera Device
               _RoleCard(
                 icon: Icons.videocam,
                 title: 'Camera Device',
                 subtitle: 'This phone acts as the security camera',
                 color: AppTheme.primary,
-                onTap: () {
-                  context.read<AuthProvider>().setRole(UserRole.camera);
-                  Navigator.pushReplacementNamed(context, '/dashboard');
+                onTap: () async {
+                  await AuthController.to.setRole(UserRole.camera);
+                  Get.offAllNamed('/dashboard');
                 },
               ),
               const SizedBox(height: 16),
 
-              // Viewer Device
               _RoleCard(
                 icon: Icons.personal_video,
                 title: 'Viewer / Monitor',
                 subtitle: 'Watch the live stream from camera',
                 color: AppTheme.info,
-                onTap: () {
-                  context.read<AuthProvider>().setRole(UserRole.viewer);
-                  Navigator.pushReplacementNamed(context, '/dashboard');
+                onTap: () async {
+                  await AuthController.to.setRole(UserRole.viewer);
+                  Get.offAllNamed('/dashboard');
                 },
               ),
 
@@ -97,53 +89,39 @@ class _RoleCard extends StatelessWidget {
   final Color color;
   final VoidCallback onTap;
 
-  const _RoleCard({
-    required this.icon,
-    required this.title,
-    required this.subtitle,
-    required this.color,
-    required this.onTap,
-  });
+  const _RoleCard({required this.icon, required this.title, required this.subtitle, required this.color, required this.onTap});
 
   @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        padding: const EdgeInsets.all(20),
-        decoration: BoxDecoration(
-          color: AppTheme.surface,
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: color.withOpacity(0.4), width: 1.5),
-        ),
-        child: Row(
-          children: [
-            Container(
-              width: 56, height: 56,
-              decoration: BoxDecoration(
-                color: color.withOpacity(0.12),
-                borderRadius: BorderRadius.circular(14),
-              ),
-              child: Icon(icon, color: color, size: 28),
-            ),
-            const SizedBox(width: 16),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(title,
-                      style: const TextStyle(
-                          color: AppTheme.textPri, fontSize: 16, fontWeight: FontWeight.w600)),
-                  const SizedBox(height: 4),
-                  Text(subtitle,
-                      style: const TextStyle(color: AppTheme.textSec, fontSize: 12, height: 1.4)),
-                ],
-              ),
-            ),
-            Icon(Icons.arrow_forward_ios, color: color, size: 16),
-          ],
-        ),
+  Widget build(BuildContext context) => GestureDetector(
+    onTap: onTap,
+    child: Container(
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: AppTheme.surface,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: color.withOpacity(0.4), width: 1.5),
       ),
-    );
-  }
+      child: Row(
+        children: [
+          Container(
+            width: 56, height: 56,
+            decoration: BoxDecoration(color: color.withOpacity(0.12), borderRadius: BorderRadius.circular(14)),
+            child: Icon(icon, color: color, size: 28),
+          ),
+          const SizedBox(width: 16),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(title, style: const TextStyle(color: AppTheme.textPri, fontSize: 16, fontWeight: FontWeight.w600)),
+                const SizedBox(height: 4),
+                Text(subtitle, style: const TextStyle(color: AppTheme.textSec, fontSize: 12, height: 1.4)),
+              ],
+            ),
+          ),
+          Icon(Icons.arrow_forward_ios, color: color, size: 16),
+        ],
+      ),
+    ),
+  );
 }

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_webrtc/flutter_webrtc.dart';
+import 'package:get/get.dart';
 import '../services/webrtc_service.dart';
 
 class LiveViewScreen extends StatefulWidget {
@@ -16,7 +17,7 @@ class _LiveViewScreenState extends State<LiveViewScreen> {
   String _status = 'Starting…';
   RTCIceConnectionState _iceState = RTCIceConnectionState.RTCIceConnectionStateNew;
 
-  String get _camId => ModalRoute.of(context)?.settings.arguments as String? ?? 'cam_001';
+  String get _camId => (Get.arguments as String?) ?? 'cam_001';
 
   // Read cameraId from route arguments
 
