@@ -147,6 +147,32 @@ class NotificationService {
     Get.toNamed('/alerts');
   }
 
+  // ── Show motion alert (triggered from CameraController) ──
+  Future<void> showMotionAlert({required String cameraName, required String location}) async {
+    await _local.show(
+      id: cameraName.hashCode,
+      title: 'Motion Detected — $cameraName',
+      body: 'Activity detected at $location',
+      notificationDetails: NotificationDetails(
+        android: AndroidNotificationDetails(
+          _channel.id,
+          _channel.name,
+          channelDescription: _channel.description,
+          importance: Importance.high,
+          priority: Priority.high,
+          icon: '@mipmap/ic_launcher',
+          color: const Color(0xFFFFB300),
+        ),
+        iOS: const DarwinNotificationDetails(
+          presentAlert: true,
+          presentBadge: true,
+          presentSound: true,
+        ),
+      ),
+      payload: 'motion:$cameraName',
+    );
+  }
+
   // ── Check if app was opened from a terminated notification ─
   Future<RemoteMessage?> getInitialMessage() async {
     return await _fcm.getInitialMessage();

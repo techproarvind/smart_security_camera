@@ -16,7 +16,11 @@ class CameraCard extends StatelessWidget {
     return GestureDetector(
       onTap: () => Get.toNamed('/camera_detail', arguments: camera.id),
       child: GlassCard(
-        borderColor: camera.status == CameraStatus.recording ? AppTheme.danger.withOpacity(0.5) : null,
+        borderColor: camera.status == CameraStatus.motion
+            ? const Color(0xFFFFB300).withOpacity(0.7)
+            : camera.status == CameraStatus.recording
+                ? AppTheme.danger.withOpacity(0.5)
+                : null,
         padding: EdgeInsets.zero,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -38,6 +42,13 @@ class CameraCard extends StatelessWidget {
                     padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                     decoration: BoxDecoration(color: AppTheme.danger, borderRadius: BorderRadius.circular(6)),
                     child: const Text('● REC', style: TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.w700)),
+                  )),
+              if (camera.status == CameraStatus.motion)
+                Positioned(top: 8, right: 8,
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                    decoration: BoxDecoration(color: const Color(0xFFFFB300), borderRadius: BorderRadius.circular(6)),
+                    child: const Text('⚡ MOTION', style: TextStyle(color: Colors.black, fontSize: 10, fontWeight: FontWeight.w700)),
                   )),
               if (camera.peopleCount > 0)
                 Positioned(top: 8, left: 8,

@@ -1,14 +1,21 @@
-enum CameraStatus { online, offline, recording }
+enum CameraStatus { online, offline, recording, motion }
+
+enum MotionSensitivity { low, medium, high }
 
 class CameraModel {
   final String id;
-  final String name;
-  final String location;
+  String name;
+  String location;
   CameraStatus status;
   bool motionEnabled;
   bool isRecording;
   int peopleCount;
-  final String thumbnailAsset; // use placeholder in real app
+  final String thumbnailAsset;
+
+  // Motion sensing
+  MotionSensitivity motionSensitivity;
+  DateTime? lastMotionAt;
+  int motionEventsToday;
 
   CameraModel({
     required this.id,
@@ -19,5 +26,8 @@ class CameraModel {
     this.isRecording = false,
     this.peopleCount = 0,
     this.thumbnailAsset = '',
+    this.motionSensitivity = MotionSensitivity.medium,
+    this.lastMotionAt,
+    this.motionEventsToday = 0,
   });
 }
