@@ -12,6 +12,12 @@ class CameraDetailScreen extends StatelessWidget {
     final id     = ModalRoute.of(context)!.settings.arguments as String;
     final camP   = context.watch<CameraProvider>();
     final camera = camP.getById(id);
+    if (camera == null) {
+      return Scaffold(
+        appBar: AppBar(title: const Text('Camera')),
+        body: const Center(child: Text('Camera not found', style: TextStyle(color: AppTheme.textSec))),
+      );
+    }
 
     return Scaffold(
       appBar: AppBar(title: Text(camera.name)),

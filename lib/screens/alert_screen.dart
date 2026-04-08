@@ -13,7 +13,7 @@ class AlertsScreen extends StatelessWidget {
         title: const Text('Alerts'),
         actions: [
           TextButton(
-            onPressed: context.read<AlertProvider>().markAllRead,
+            onPressed: context.read<AlertProvider>().clearAll,
             child: const Text('Clear all', style: TextStyle(color: AppTheme.primary)),
           ),
         ],
