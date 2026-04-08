@@ -208,11 +208,11 @@ class AnalyticsTab extends StatelessWidget {
           const SizedBox(height: 12),
           Row(
             children: [
-              _QuickAction(icon: Icons.people_alt_outlined, label: 'People\nCounter',   color: AppTheme.info,    route: '/people_counter'),
+              _QuickAction(icon: Icons.people_alt_outlined, label: 'People\nCounter', color: AppTheme.info,    route: '/people_counter'),
               const SizedBox(width: 12),
-              _QuickAction(icon: Icons.videocam,             label: 'Live\nView',        color: AppTheme.primary, route: '/live'),
+              _QuickAction(icon: Icons.videocam,             label: 'Live\nView',       color: AppTheme.primary, route: '/live',           args: 'cam_001'),
               const SizedBox(width: 12),
-              _QuickAction(icon: Icons.history,              label: 'Alert\nHistory',    color: AppTheme.warning, route: '/alerts'),
+              _QuickAction(icon: Icons.history,              label: 'Alert\nHistory',   color: AppTheme.warning, route: '/alerts'),
             ],
           ),
         ],
@@ -222,12 +222,12 @@ class AnalyticsTab extends StatelessWidget {
 }
 
 class _QuickAction extends StatelessWidget {
-  final IconData icon; final String label, route; final Color color;
-  const _QuickAction({required this.icon, required this.label, required this.color, required this.route});
+  final IconData icon; final String label, route; final Color color; final Object? args;
+  const _QuickAction({required this.icon, required this.label, required this.color, required this.route, this.args});
   @override
   Widget build(BuildContext context) => Expanded(
     child: GestureDetector(
-      onTap: () => Navigator.pushNamed(context, route),
+      onTap: () => Navigator.pushNamed(context, route, arguments: args),
       child: GlassCard(
         child: Column(
           children: [

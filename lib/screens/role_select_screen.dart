@@ -1,14 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:smart_security_camera/provider/auth_provider.dart';
+import 'package:smart_security_camera/screens/app_theme.dart';
 
 class RoleSelectScreen extends StatelessWidget {
   const RoleSelectScreen({super.key});
 
-  static const String _cameraId = 'cam_001';
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF0D1117),
+      backgroundColor: AppTheme.bg,
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.all(24),
@@ -16,47 +17,52 @@ class RoleSelectScreen extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              const Icon(Icons.videocam, color: Color(0xFF00E5A0), size: 64),
-              const SizedBox(height: 16),
-              const Text('SmartCam',
-                  textAlign: TextAlign.center,
-                  style: TextStyle(color: Color(0xFFE6EDF3), fontSize: 28, fontWeight: FontWeight.w700)),
+              Container(
+                width: 72, height: 72,
+                margin: const EdgeInsets.only(bottom: 16),
+                alignment: Alignment.center,
+                decoration: BoxDecoration(
+                  color: AppTheme.primary.withOpacity(0.12),
+                  shape: BoxShape.circle,
+                  border: Border.all(color: AppTheme.primary.withOpacity(0.4), width: 2),
+                ),
+                child: const Icon(Icons.videocam, color: AppTheme.primary, size: 36),
+              ),
+              const Text(
+                'SmartCam',
+                textAlign: TextAlign.center,
+                style: TextStyle(color: AppTheme.textPri, fontSize: 28, fontWeight: FontWeight.w700),
+              ),
               const SizedBox(height: 8),
-              const Text('Select this device\'s role',
-                  textAlign: TextAlign.center,
-                  style: TextStyle(color: Color(0xFF8B949E), fontSize: 14)),
-              const SizedBox(height: 60),
+              const Text(
+                'Select this device\'s role',
+                textAlign: TextAlign.center,
+                style: TextStyle(color: AppTheme.textSec, fontSize: 14),
+              ),
+              const SizedBox(height: 52),
 
-              // ── Camera Device ────────────────────────────
+              // Camera Device
               _RoleCard(
                 icon: Icons.videocam,
                 title: 'Camera Device',
-                subtitle: 'This phone acts as the security camera\n(old phone)',
-                color: const Color(0xFF00E5A0),
+                subtitle: 'This phone acts as the security camera',
+                color: AppTheme.primary,
                 onTap: () {
-                  print('>>> ROLE SELECTED: broadcaster');  // ← debug
-                  Navigator.pushReplacementNamed(
-                    context,
-                    '/broadcast',                           // ← goes to CameraBroadcastScreen
-                    arguments: _cameraId,
-                  );
+                  context.read<AuthProvider>().setRole(UserRole.camera);
+                  Navigator.pushReplacementNamed(context, '/dashboard');
                 },
               ),
               const SizedBox(height: 16),
 
-              // ── Viewer Device ────────────────────────────
+              // Viewer Device
               _RoleCard(
                 icon: Icons.personal_video,
                 title: 'Viewer / Monitor',
-                subtitle: 'Watch the live stream from camera\n(your phone)',
-                color: const Color(0xFF58A6FF),
+                subtitle: 'Watch the live stream from camera',
+                color: AppTheme.info,
                 onTap: () {
-                  print('>>> ROLE SELECTED: viewer');       // ← debug
-                  Navigator.pushReplacementNamed(
-                    context,
-                    '/live',                                // ← goes to LiveViewScreen
-                    arguments: _cameraId,
-                  );
+                  context.read<AuthProvider>().setRole(UserRole.viewer);
+                  Navigator.pushReplacementNamed(context, '/dashboard');
                 },
               ),
 
@@ -64,16 +70,18 @@ class RoleSelectScreen extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
                 decoration: BoxDecoration(
-                  color: const Color(0xFF161B22),
+                  color: AppTheme.surface,
                   borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: const Color(0xFF21262D)),
+                  border: Border.all(color: AppTheme.surface2),
                 ),
-                child: Row(mainAxisAlignment: MainAxisAlignment.center, children: const [
-                  Icon(Icons.meeting_room_outlined, color: Color(0xFF8B949E), size: 16),
-                  SizedBox(width: 8),
-                  Text('Room ID: cam_001',
-                      style: TextStyle(color: Color(0xFF8B949E), fontSize: 13)),
-                ]),
+                child: const Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(Icons.meeting_room_outlined, color: AppTheme.textSec, size: 16),
+                    SizedBox(width: 8),
+                    Text('Room ID: cam_001', style: TextStyle(color: AppTheme.textSec, fontSize: 13)),
+                  ],
+                ),
               ),
             ],
           ),
@@ -104,7 +112,7 @@ class _RoleCard extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.all(20),
         decoration: BoxDecoration(
-          color: const Color(0xFF161B22),
+          color: AppTheme.surface,
           borderRadius: BorderRadius.circular(16),
           border: Border.all(color: color.withOpacity(0.4), width: 1.5),
         ),
@@ -125,13 +133,10 @@ class _RoleCard extends StatelessWidget {
                 children: [
                   Text(title,
                       style: const TextStyle(
-                          color: Color(0xFFE6EDF3),
-                          fontSize: 16,
-                          fontWeight: FontWeight.w600)),
+                          color: AppTheme.textPri, fontSize: 16, fontWeight: FontWeight.w600)),
                   const SizedBox(height: 4),
                   Text(subtitle,
-                      style: const TextStyle(
-                          color: Color(0xFF8B949E), fontSize: 12, height: 1.4)),
+                      style: const TextStyle(color: AppTheme.textSec, fontSize: 12, height: 1.4)),
                 ],
               ),
             ),

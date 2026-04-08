@@ -1,10 +1,16 @@
 import 'package:flutter/material.dart';
 
+enum UserRole { none, camera, viewer }
+
 class AuthProvider extends ChangeNotifier {
   bool _loggedIn = false;
   String _userName = '';
+  UserRole _role = UserRole.none;
+
   bool get loggedIn => _loggedIn;
   String get userName => _userName;
+  UserRole get role => _role;
+  bool get isCameraDevice => _role == UserRole.camera;
 
   Future<bool> login(String email, String password) async {
     await Future.delayed(const Duration(seconds: 1));
@@ -17,5 +23,14 @@ class AuthProvider extends ChangeNotifier {
     return false;
   }
 
-  void logout() { _loggedIn = false; notifyListeners(); }
+  void setRole(UserRole role) {
+    _role = role;
+    notifyListeners();
+  }
+
+  void logout() {
+    _loggedIn = false;
+    _role = UserRole.none;
+    notifyListeners();
+  }
 }

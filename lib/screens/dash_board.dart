@@ -14,6 +14,10 @@ class DashboardScreen extends StatefulWidget {
 class _DashboardScreenState extends State<DashboardScreen> {
   int _tab = 0;
 
+  static const String _cameraId = 'cam_001';
+
+  static const _tabTitles = ['Cameras', 'Alerts', 'Analytics'];
+
   @override
   Widget build(BuildContext context) {
     final alertP = context.watch<AlertProvider>();
@@ -21,9 +25,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('SmartCam'),
+        title: Text(_tabTitles[_tab]),
         leading: Padding(
-          padding: const EdgeInsets.all(12),
+          padding: const EdgeInsets.all(10),
           child: CircleAvatar(
             backgroundColor: AppTheme.primary.withOpacity(0.2),
             child: Text(
@@ -35,37 +39,67 @@ class _DashboardScreenState extends State<DashboardScreen> {
         actions: [
           Stack(
             children: [
-              IconButton(icon: const Icon(Icons.notifications_outlined), onPressed: () => Navigator.pushNamed(context, '/alerts')),
+              IconButton(
+                icon: const Icon(Icons.notifications_outlined),
+                onPressed: () => Navigator.pushNamed(context, '/alerts'),
+              ),
               if (alertP.unreadCount > 0)
                 Positioned(
                   right: 8, top: 8,
                   child: Container(
                     width: 16, height: 16,
-                    decoration: const BoxDecoration(color: AppTheme.danger, shape: BoxShape.circle),
+                    decoration: const BoxDecoration(
+                      color: AppTheme.danger, shape: BoxShape.circle,
+                    ),
                     child: Center(
-                      child: Text('${alertP.unreadCount}',
-                          style: const TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.w700)),
+                      child: Text(
+                        '${alertP.unreadCount}',
+                        style: const TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.w700),
+                      ),
                     ),
                   ),
                 ),
             ],
           ),
-          IconButton(icon: const Icon(Icons.settings_outlined), onPressed: () => Navigator.pushNamed(context, '/settings')),
+          IconButton(
+            icon: const Icon(Icons.settings_outlined),
+            onPressed: () => Navigator.pushNamed(context, '/settings'),
+          ),
         ],
       ),
+
       body: IndexedStack(
         index: _tab,
         children: const [CamerasTab(), AlertsTab(), AnalyticsTab()],
       ),
+
+      // Role-aware FAB
+      floatingActionButton: FloatingActionButton.extended(
+        backgroundColor: authP.isCameraDevice ? AppTheme.primary : AppTheme.info,
+        foregroundColor: AppTheme.bg,
+        icon: Icon(authP.isCameraDevice ? Icons.videocam : Icons.personal_video),
+        label: Text(
+          authP.isCameraDevice ? 'Go Live' : 'Watch Live',
+          style: const TextStyle(fontWeight: FontWeight.w700),
+        ),
+        onPressed: () {
+          if (authP.isCameraDevice) {
+            Navigator.pushNamed(context, '/broadcast', arguments: _cameraId);
+          } else {
+            Navigator.pushNamed(context, '/live', arguments: _cameraId);
+          }
+        },
+      ),
+
       bottomNavigationBar: NavigationBar(
         backgroundColor: AppTheme.surface,
         indicatorColor: AppTheme.primary.withOpacity(0.15),
         selectedIndex: _tab,
         onDestinationSelected: (i) => setState(() => _tab = i),
         destinations: [
-          NavigationDestination(
-            icon: const Icon(Icons.videocam_outlined),
-            selectedIcon: const Icon(Icons.videocam, color: AppTheme.primary),
+          const NavigationDestination(
+            icon: Icon(Icons.videocam_outlined),
+            selectedIcon: Icon(Icons.videocam, color: AppTheme.primary),
             label: 'Cameras',
           ),
           NavigationDestination(
