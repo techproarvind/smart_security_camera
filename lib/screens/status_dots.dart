@@ -11,6 +11,7 @@ class StatusDot extends StatelessWidget {
       case CameraStatus.online:    return AppTheme.primary;
       case CameraStatus.recording: return AppTheme.danger;
       case CameraStatus.offline:   return AppTheme.textSec;
+      case CameraStatus.motion:    return const Color(0xFFFFB300);
     }
   }
 
@@ -19,6 +20,7 @@ class StatusDot extends StatelessWidget {
       case CameraStatus.online:    return 'Live';
       case CameraStatus.recording: return 'REC';
       case CameraStatus.offline:   return 'Offline';
+      case CameraStatus.motion:    return 'Motion';
     }
   }
 

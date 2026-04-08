@@ -171,7 +171,7 @@ flutter build appbundle \
 
 ```
 Email:    admin@smartcam.app
-Password: 1234
+Password: 123456
 ```
 
 ---
