@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "1025717374734",
+    "project_id": "smart-security-camera-40d2b",
+    "storage_bucket": "smart-security-camera-40d2b.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1025717374734:android:e65d2865ad57eabb06115f",
+        "android_client_info": {
+          "package_name": "com.example.smart_security_camera"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDZIxXdzqoxjj7u1CoDG86-Gfrn3XPNTsg"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

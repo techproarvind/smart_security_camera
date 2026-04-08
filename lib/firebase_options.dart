@@ -24,21 +24,23 @@ class DefaultFirebaseOptions {
     }
   }
 
-  // ── Replace these values after running `flutterfire configure` ──
   static const FirebaseOptions android = FirebaseOptions(
-    apiKey:            'YOUR_ANDROID_API_KEY',
-    appId:             'YOUR_ANDROID_APP_ID',
-    messagingSenderId: 'YOUR_SENDER_ID',
-    projectId:         'YOUR_PROJECT_ID',
-    storageBucket:     'YOUR_PROJECT_ID.appspot.com',
+    apiKey: 'AIzaSyDZIxXdzqoxjj7u1CoDG86-Gfrn3XPNTsg',
+    appId: '1:1025717374734:android:e65d2865ad57eabb06115f',
+    messagingSenderId: '1025717374734',
+    projectId: 'smart-security-camera-40d2b',
+    storageBucket: 'smart-security-camera-40d2b.firebasestorage.app',
   );
 
+  // ── Replace these values after running `flutterfire configure` ──
+
   static const FirebaseOptions ios = FirebaseOptions(
-    apiKey:            'YOUR_IOS_API_KEY',
-    appId:             'YOUR_IOS_APP_ID',
-    messagingSenderId: 'YOUR_SENDER_ID',
-    projectId:         'YOUR_PROJECT_ID',
-    storageBucket:     'YOUR_PROJECT_ID.appspot.com',
-    iosBundleId:       'com.example.smartSecurityCamera',
+    apiKey: 'AIzaSyAUftbbCoGxokunEvf2qeKKir4MkCtgGn4',
+    appId: '1:1025717374734:ios:ef2c6a9de5e0a5eb06115f',
+    messagingSenderId: '1025717374734',
+    projectId: 'smart-security-camera-40d2b',
+    storageBucket: 'smart-security-camera-40d2b.firebasestorage.app',
+    iosBundleId: 'com.example.smartSecurityCamera',
   );
+
 }
