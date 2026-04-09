@@ -7,6 +7,7 @@ import 'package:smart_security_camera/controllers/alert_controller.dart';
 import 'package:smart_security_camera/controllers/auth_controller.dart';
 import 'package:smart_security_camera/controllers/camera_controller.dart';
 import 'package:smart_security_camera/controllers/notification_controller.dart';
+import 'package:smart_security_camera/controllers/settings_controller.dart';
 import 'package:smart_security_camera/firebase_options.dart';
 import 'package:smart_security_camera/screens/app_theme.dart';
 import 'package:smart_security_camera/screens/routes.dart';
@@ -48,5 +49,6 @@ class AppBinding extends Bindings {
     Get.put(CameraController(),        permanent: true);
     Get.put(AlertController(),         permanent: true);
     Get.put(NotificationController(),  permanent: true);
+    Get.put(SettingsController(),      permanent: true);
   }
 }
