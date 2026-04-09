@@ -8,6 +8,7 @@ import 'package:smart_security_camera/screens/live_view.dart';
 import 'package:smart_security_camera/screens/login_screen.dart';
 import 'package:smart_security_camera/screens/people_count.dart';
 import 'package:smart_security_camera/screens/role_select_screen.dart';
+import 'package:smart_security_camera/screens/recordings_screen.dart';
 import 'package:smart_security_camera/screens/setting_screen.dart';
 import 'package:smart_security_camera/screens/splash_screen.dart';
 
@@ -24,6 +25,7 @@ class AppPages {
     GetPage(name: '/settings',       page: () => const SettingsScreen()),
     GetPage(name: '/broadcast',      page: () => const CameraBroadcastScreen()),
     GetPage(name: '/live',           page: () => const LiveViewScreen()),
+    GetPage(name: '/recordings',     page: () => const RecordingsScreen()),
   ];
 }
 

@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_webrtc/flutter_webrtc.dart';
+import 'package:flutter_webrtc/flutter_webrtc.dart' as rtc;
+import 'package:get/get.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:smart_security_camera/controllers/recording_controller.dart';
 import 'package:smart_security_camera/screens/live_view.dart';
 import '../services/webrtc_service.dart';
 
@@ -20,6 +22,8 @@ class _CameraBroadcastScreenState extends State<CameraBroadcastScreen>
   bool   _permGranted   = false;
   bool   _checking      = true;
   String _status        = 'Checking permissions…';
+
+  static const _cameraName = 'My Camera';
 
   static const String _cameraId = 'cam_001'; // match viewer's cameraId
 
@@ -62,7 +66,7 @@ class _CameraBroadcastScreenState extends State<CameraBroadcastScreen>
     await _webrtc.initialize();
     // Show local preview immediately
     try {
-      final stream = await navigator.mediaDevices.getUserMedia({
+      final stream = await rtc.navigator.mediaDevices.getUserMedia({
         'audio': true,
         'video': {'facingMode': 'environment'},
       });
@@ -87,12 +91,12 @@ class _CameraBroadcastScreenState extends State<CameraBroadcastScreen>
       if (!mounted) return;
       setState(() {
         switch (state) {
-          case RTCIceConnectionState.RTCIceConnectionStateConnected:
-          case RTCIceConnectionState.RTCIceConnectionStateCompleted:
+          case rtc.RTCIceConnectionState.RTCIceConnectionStateConnected:
+          case rtc.RTCIceConnectionState.RTCIceConnectionStateCompleted:
             _status = '✅ Viewer watching live'; break;
-          case RTCIceConnectionState.RTCIceConnectionStateDisconnected:
+          case rtc.RTCIceConnectionState.RTCIceConnectionStateDisconnected:
             _status = 'Viewer disconnected'; break;
-          case RTCIceConnectionState.RTCIceConnectionStateFailed:
+          case rtc.RTCIceConnectionState.RTCIceConnectionStateFailed:
             _status = 'Connection failed'; _broadcasting = false; break;
           default: break;
         }
@@ -158,10 +162,10 @@ class _CameraBroadcastScreenState extends State<CameraBroadcastScreen>
             child: Stack(children: [
               // Show preview only if permission granted & renderer ready
               if (_permGranted && _webrtc.isInitialized)
-                RTCVideoView(
+                rtc.RTCVideoView(
                   _webrtc.localRenderer,
                   mirror: false,
-                  objectFit: RTCVideoViewObjectFit.RTCVideoViewObjectFitCover,
+                  objectFit: rtc.RTCVideoViewObjectFit.RTCVideoViewObjectFitCover,
                 )
               else
                 Container(
@@ -229,31 +233,60 @@ class _CameraBroadcastScreenState extends State<CameraBroadcastScreen>
             color: surf,
             padding: const EdgeInsets.fromLTRB(20, 16, 20, 20),
             child: Column(children: [
-              Row(mainAxisAlignment: MainAxisAlignment.spaceEvenly, children: [
-                Btn(
-                  icon: _muted ? Icons.mic_off : Icons.mic,
-                  label: _muted ? 'Unmute' : 'Mute',
-                  color: _muted ? red : Colors.white,
-                  onTap: _permGranted ? () {
-                    setState(() => _muted = !_muted);
-                    _webrtc.toggleMute(_muted);
-                  } : null,
-                ),
-                Btn(
-                  icon: _videoOff ? Icons.videocam_off : Icons.videocam,
-                  label: _videoOff ? 'Video Off' : 'Video On',
-                  color: _videoOff ? red : Colors.white,
-                  onTap: _permGranted ? () {
-                    setState(() => _videoOff = !_videoOff);
-                    _webrtc.toggleVideo(_videoOff);
-                  } : null,
-                ),
-                Btn(
-                  icon: Icons.flip_camera_android,
-                  label: 'Flip',
-                  onTap: _permGranted ? _webrtc.switchCamera : null,
-                ),
-              ]),
+              Obx(() {
+                final recCtrl   = RecordingController.to;
+                final isRec     = recCtrl.isRecording;
+                final isUpl     = recCtrl.isUploading;
+                return Row(mainAxisAlignment: MainAxisAlignment.spaceEvenly, children: [
+                  Btn(
+                    icon: _muted ? Icons.mic_off : Icons.mic,
+                    label: _muted ? 'Unmute' : 'Mute',
+                    color: _muted ? red : Colors.white,
+                    onTap: _permGranted ? () {
+                      setState(() => _muted = !_muted);
+                      _webrtc.toggleMute(_muted);
+                    } : null,
+                  ),
+                  Btn(
+                    icon: _videoOff ? Icons.videocam_off : Icons.videocam,
+                    label: _videoOff ? 'Video Off' : 'Video On',
+                    color: _videoOff ? red : Colors.white,
+                    onTap: _permGranted ? () {
+                      setState(() => _videoOff = !_videoOff);
+                      _webrtc.toggleVideo(_videoOff);
+                    } : null,
+                  ),
+                  Btn(
+                    icon: Icons.flip_camera_android,
+                    label: 'Flip',
+                    onTap: _permGranted ? _webrtc.switchCamera : null,
+                  ),
+                  // Record button — only active while broadcasting
+                  if (isUpl)
+                    Btn(icon: Icons.cloud_upload, label: 'Saving…', color: const Color(0xFFFFB300))
+                  else
+                    Btn(
+                      icon: isRec ? Icons.stop_circle_outlined : Icons.fiber_manual_record,
+                      label: isRec ? 'Stop Rec' : 'Record',
+                      color: isRec ? red : Colors.white,
+                      onTap: _broadcasting && _permGranted
+                          ? () async {
+                              if (isRec) {
+                                await RecordingController.to.stopRecording(
+                                  cameraId:   _cameraId,
+                                  cameraName: _cameraName,
+                                );
+                              } else {
+                                final stream = _webrtc.localStream;
+                                if (stream != null) {
+                                  await RecordingController.to.startRecording(stream);
+                                }
+                              }
+                            }
+                          : null,
+                    ),
+                ]);
+              }),
               const SizedBox(height: 16),
               SizedBox(
                 width: double.infinity,

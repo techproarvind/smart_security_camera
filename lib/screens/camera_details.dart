@@ -220,19 +220,27 @@ class CameraDetailScreen extends StatelessWidget {
                   const SizedBox(height: 16),
                   Row(mainAxisAlignment: MainAxisAlignment.center, children: [
                     IconButton(
-                      onPressed: () => ctrl.updatePeopleCount(id, -1),
-                      icon: const Icon(Icons.remove_circle_outline, color: AppTheme.danger, size: 32),
+                      onPressed: () => ctrl.logExit(id),
+                      icon: const Icon(Icons.logout_rounded, color: AppTheme.danger, size: 32),
+                      tooltip: 'Person exited',
                     ),
                     const SizedBox(width: 20),
                     Column(children: [
                       Text('${camera.peopleCount}',
                           style: const TextStyle(color: AppTheme.textPri, fontSize: 48, fontWeight: FontWeight.w700)),
-                      const Text('people inside', style: TextStyle(color: AppTheme.textSec, fontSize: 12)),
+                      const Text('inside now', style: TextStyle(color: AppTheme.textSec, fontSize: 12)),
+                      const SizedBox(height: 4),
+                      Row(mainAxisSize: MainAxisSize.min, children: [
+                        Text('↑ ${camera.peopleIn}', style: const TextStyle(color: AppTheme.primary, fontSize: 11)),
+                        const SizedBox(width: 8),
+                        Text('↓ ${camera.peopleOut}', style: const TextStyle(color: AppTheme.textSec, fontSize: 11)),
+                      ]),
                     ]),
                     const SizedBox(width: 20),
                     IconButton(
-                      onPressed: () => ctrl.updatePeopleCount(id, 1),
-                      icon: const Icon(Icons.add_circle_outline, color: AppTheme.primary, size: 32),
+                      onPressed: () => ctrl.logEntry(id),
+                      icon: const Icon(Icons.login_rounded, color: AppTheme.primary, size: 32),
+                      tooltip: 'Person entered',
                     ),
                   ]),
                 ]),

@@ -51,7 +51,11 @@ class CameraProvider extends ChangeNotifier {
   void updatePeopleCount(String id, int delta) {
     final cam = getById(id);
     if (cam == null) return;
-    cam.peopleCount = (cam.peopleCount + delta).clamp(0, 999);
+    if (delta > 0) {
+      cam.peopleIn += delta;
+    } else {
+      cam.peopleOut += (-delta).clamp(0, cam.peopleIn - cam.peopleOut);
+    }
     notifyListeners();
   }
 }
