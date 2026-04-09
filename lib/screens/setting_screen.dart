@@ -154,6 +154,15 @@ class SettingsScreen extends StatelessWidget {
             const SizedBox(height: 12),
 
             // ── Device / Debug ────────────────────────────
+            _Section(title: 'Recordings', tiles: [
+              _ActionTile(
+                icon: Icons.video_library_outlined,
+                label: 'View Recordings',
+                subtitle: 'Clips saved to Firebase Storage',
+                onTap: () => Get.toNamed('/recordings'),
+              ),
+            ]),
+            const SizedBox(height: 12),
             _Section(title: 'Device', tiles: [
               _InfoTile(
                 icon: Icons.info_outline,

@@ -11,8 +11,10 @@ class WebRTCService {
   final RTCVideoRenderer localRenderer  = RTCVideoRenderer();
   final RTCVideoRenderer remoteRenderer = RTCVideoRenderer();
 
-  bool _initialized = false;
   bool get isInitialized => _initialized;
+  bool _initialized = false;
+
+  MediaStream? get localStream => _localStream;
 
   void Function(MediaStream)?          onRemoteStream;
   void Function(RTCIceConnectionState)? onConnectionStateChange;
